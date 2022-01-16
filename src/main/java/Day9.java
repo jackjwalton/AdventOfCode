@@ -1,11 +1,10 @@
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 
-/**Notes:
+/**
+ * Notes:
  * Reads input way too many times. A consequence of speedy 2-part problems. Refactoring part 1 would solve this.
  */
 public class Day9 {
@@ -24,9 +23,9 @@ public class Day9 {
                     System.out.println("Sum of lowpoints: " + sum);
                     break;
                 case "2":
-                    int product = getProductOfLargestBasins();
+                    int product = getProductOfLargestThreeBasins();
                     System.out.println("Product of Largest Basins: " + product);
-
+                    break;
                 default:
                     selection = null;
                     System.out.println("Error: please input 1 or 2 for corresponding solution.");
@@ -121,7 +120,7 @@ public class Day9 {
 
 
                 if (couldBeLowpoint) {
-                    System.out.println("Lowpoint found: " + target);
+//                    System.out.println("Lowpoint found: " + target);
                     lowpointList.add(new Lowpoint(target, yPos, xPos));
                 }
                 previous = target;
@@ -139,34 +138,49 @@ public class Day9 {
     ///Part 2 Code
 
 
-    public static int getProductOfLargestBasins() {
+    private static int getProductOfLargestThreeBasins() {
 
-        List<Integer> listOfBasinSizes = getListOfBasinsBySize();
-        if (listOfBasinSizes == null) {
-            return 0;
-        }
+        int firstLargest;
+        int secondLargest;
+        int thirdLargest;
+        firstLargest = secondLargest = thirdLargest = 0; //if < 3 basins, return 0
 
-        return 0;
-    }
-
-
-    private static List<Integer> getListOfBasinsBySize() {
 
         int[][] inputAsIntArray = getInputAsIntArray();
         if (inputAsIntArray == null) {
-            return null;
+            return 0;
         }
 
         List<Lowpoint> lowpointList = getListOfLowpoints();
 
-        for(Lowpoint lowpoint : lowpointList){
-            int basinSize = findBasinSize(lowpoint, inputAsIntArray);
+        for (Lowpoint lowpoint : lowpointList) {
+            System.out.println("Finding basin for lowpoint: " + lowpoint.xPos + "," + lowpoint.yPos + "," + lowpoint.lowpointValue);
+
+            boolean[][] defaultHitBoard = new boolean[inputAsIntArray.length][inputAsIntArray[0].length];
+
+            List<Lowpoint> basin = generateBasin(lowpoint, inputAsIntArray, defaultHitBoard, new ArrayList<>());
+            int target = basin.size();
+
+            System.out.println("Basin size: " + target);
+
+
+            if (target > firstLargest) {
+                thirdLargest = secondLargest;
+                secondLargest = firstLargest;
+                firstLargest = target;
+            } else if (target > secondLargest) {
+                thirdLargest = secondLargest;
+                secondLargest = target;
+            } else if (target > thirdLargest) {
+                thirdLargest = target;
+            }
+
+
+            System.out.println("Largest Basins: {" + firstLargest + "," + secondLargest + "," + thirdLargest + "}");
         }
 
 
-
-
-        return null;
+        return firstLargest * secondLargest * thirdLargest;
     }
 
 
@@ -215,26 +229,52 @@ public class Day9 {
     }
 
 
-    private static int findBasinSize(int target, int yPos, int xPos, int[][] board){
-        int sum = 0;
-        if(yPos >= 0){
-            if(target > board[yPos-1][xPos]){
-                return 1 + findBasinSize(board[yPos-1][xPos], yPos -1, xPos, board);
+    private static List<Lowpoint> generateBasin(Lowpoint lowpoint, int[][] board, boolean[][] hitBoard, List<Lowpoint> basin) {
+        int yPos = lowpoint.yPos;
+        int xPos = lowpoint.xPos;
+        int target = lowpoint.lowpointValue;
+
+        System.out.println("New target Lowpoint: {" + yPos + "," + xPos + "," + target + "}");
+
+        if(target == 9){
+            return basin;
+        }
+
+
+        basin.add(new Lowpoint(target, yPos,xPos));
+        hitBoard[yPos][xPos] = true;
+
+
+        System.out.println("Basin size: " + basin.size());
+
+
+        if (yPos > 0) {
+            if (target < board[yPos - 1][xPos] && !hitBoard[yPos - 1][xPos]) {
+                generateBasin(new Lowpoint(board[yPos - 1][xPos], yPos - 1, xPos), board, hitBoard, basin);
             }
         }
+        if (yPos < board.length - 1) {
+
+            if (target < board[yPos + 1][xPos] && !hitBoard[yPos + 1][xPos]) {
+                generateBasin(new Lowpoint(board[yPos + 1][xPos], yPos + 1, xPos), board, hitBoard, basin);
+            }
+        }
+
+        if (xPos > 0) {
+
+            if (target < board[yPos][xPos - 1] && !hitBoard[yPos][xPos-1]) {
+                generateBasin(new Lowpoint(board[yPos][xPos - 1], yPos, xPos - 1), board, hitBoard, basin);
+            }
+        }
+        if (xPos < board[0].length - 1) {
+
+            if (target < board[yPos][xPos + 1] && !hitBoard[yPos][xPos+1]) {
+                generateBasin(new Lowpoint(board[yPos][xPos + 1], yPos, xPos + 1), board, hitBoard, basin);
+            }
+        }
+
+        return basin;
     }
 
-    private boolean isHighpoint(Lowpoint lowpoint, int[][] board){
-        int target = lowpoint.lowpointValue;
-        boolean couldBeLowpoint;
-
-
-        if(lowpoint.yPos >= 0){
-            couldBeLowpoint = target > board[lowpoint.yPos-1][lowpoint.xPos];
-        }
-        if(lowpoint.xPos >= 0){
-            couldBeLowpoint = target > board[lowpoint.xPos-1][lowpoint.xPos];
-        }
-    }
 
 }
