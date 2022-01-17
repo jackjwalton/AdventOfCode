@@ -23,30 +23,29 @@ public class Graph {
         if (!containsVertex(destination)) {
             addVertex(new CaveVertex(destination));
         }
+
         edgeMap.get(getVertexByName(source)).add(getVertexByName(destination));
         edgeMap.get(getVertexByName(destination)).add(getVertexByName(source));
     }
 
 
     public List<CaveVertex> getNeighbors(CaveVertex target) {
-
-        System.out.println("Getting neighbors for vertex: " + target.getName());
         return edgeMap.get(target);
     }
 
 
-    public boolean containsVertex(String target){
-        for(CaveVertex vertex : edgeMap.keySet()){
-            if(vertex.getName().equals(target)){
+    public boolean containsVertex(String target) {
+        for (CaveVertex vertex : edgeMap.keySet()) {
+            if (vertex.getName().equals(target)) {
                 return true;
             }
         }
         return false;
     }
 
-    public CaveVertex getVertexByName(String target){
-        for(CaveVertex vertex : edgeMap.keySet()){
-            if(vertex.getName().equals(target)){
+    public CaveVertex getVertexByName(String target) {
+        for (CaveVertex vertex : edgeMap.keySet()) {
+            if (vertex.getName().equals(target)) {
                 return vertex;
             }
         }

@@ -1,19 +1,14 @@
 public class CaveVertex {
 
-
     private String name;
     private boolean isLargeCave;
-    private boolean wasVisited;
 
     public CaveVertex(String name) {
         System.out.println("Creating vertex object: " + name);
         this.name = name;
 
         char c = name.charAt(0);
-        this.isLargeCave = (65 <= c && c <= 90);
-        this.wasVisited = false;
-        System.out.println("isLargeCave: " + isLargeCave);
-
+        this.isLargeCave = (65 <= c && c <= 90); //Is Capitalized
     }
 
     public String getName() {
@@ -32,11 +27,4 @@ public class CaveVertex {
         isLargeCave = largeCave;
     }
 
-    public boolean hasBeenVisited() {
-        return wasVisited;
-    }
-
-    public void setWasVisited(boolean wasVisited) {
-        this.wasVisited = wasVisited;
-    }
 }
